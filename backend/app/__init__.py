@@ -1,0 +1,1 @@
+"""BeautyBook backend application package."""
