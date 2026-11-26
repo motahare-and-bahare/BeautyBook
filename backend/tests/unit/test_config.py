@@ -1,4 +1,4 @@
-"""Configuration must fail clearly and provide safe defaults."""
+"""Configuration accepts PostgreSQL and SQLite, and rejects every other scheme."""
 
 from __future__ import annotations
 
@@ -22,9 +22,28 @@ def test_database_url_is_required(monkeypatch: pytest.MonkeyPatch) -> None:
         Settings(_env_file=None)
 
 
-def test_non_postgresql_database_url_is_rejected() -> None:
+def test_unsupported_database_scheme_is_rejected() -> None:
     with pytest.raises(ValidationError, match=r"postgresql\+psycopg"):
-        make_settings(database_url="sqlite:///beautybook.db")
+        make_settings(database_url="mysql://user:secret@127.0.0.1/beautybook")
+
+
+@pytest.mark.parametrize(
+    "url",
+    [
+        "sqlite:///beautybook.db",
+        "sqlite+pysqlite:///./beautybook.db",
+        "sqlite+pysqlite:////absolute/path/beautybook.db",
+        "sqlite+pysqlite:///:memory:",
+    ],
+)
+def test_sqlite_database_urls_are_supported(url: str) -> None:
+    assert make_settings(database_url=url).database_url == url
+
+
+def test_sqlite_test_database_url_is_supported() -> None:
+    settings = make_settings(test_database_url="sqlite+pysqlite:///./beautybook_test.db")
+
+    assert settings.test_database_url == "sqlite+pysqlite:///./beautybook_test.db"
 
 
 def test_invalid_app_env_is_rejected() -> None:
@@ -62,7 +81,9 @@ def test_session_ttl_is_bounded(ttl: int) -> None:
         make_settings(session_ttl_days=ttl)
 
 
-def test_test_database_url_is_optional_but_validated() -> None:
+def test_test_database_url_is_optional_but_validated(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.delenv("TEST_DATABASE_URL", raising=False)
+
     assert make_settings().test_database_url is None
 
     with pytest.raises(ValidationError, match=r"postgresql\+psycopg"):

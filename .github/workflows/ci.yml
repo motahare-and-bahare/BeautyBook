@@ -5,7 +5,40 @@ on:
   pull_request:
 
 jobs:
-  backend:
+  backend-sqlite:
+    # Default profile (ADR-0011): a local SQLite file, no database service required.
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: backend
+    env:
+      APP_ENV: test
+      DATABASE_URL: sqlite:///./beautybook.db
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: backend/pyproject.toml
+      - name: Install dependencies
+        run: pip install -e ".[dev]"
+      - name: Lint
+        run: ruff check .
+      - name: Format check
+        run: ruff format --check .
+      - name: Type check
+        run: mypy
+      - name: Migrations
+        run: |
+          alembic upgrade head
+          alembic check
+          test -f beautybook.db
+      - name: Tests
+        run: pytest
+
+  backend-postgresql:
+    # Production profile: the only place where concurrency is claimed.
     runs-on: ubuntu-latest
     defaults:
       run:

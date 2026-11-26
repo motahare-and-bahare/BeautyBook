@@ -45,6 +45,10 @@ frontend/coverage/
 *.db
 *.sqlite
 *.sqlite3
+# SQLite write-ahead-logging sidecars (development profile, ADR-0011)
+*.db-wal
+*.db-shm
+*.db-journal
 backend/uploads/
 backend/media/
 var/

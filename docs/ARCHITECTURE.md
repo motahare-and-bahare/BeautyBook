@@ -48,7 +48,7 @@ deliberately starts as a modular monolith.
 | Validation | Pydantic v2 | Explicit request/response schemas. |
 | ORM | SQLAlchemy 2.x | Typed mappings and explicit transactions. |
 | Migrations | Alembic | All schema changes versioned. |
-| Main database | PostgreSQL | Development, integration tests, and production. |
+| Main database | PostgreSQL; SQLite for a local single-operator setup (ADR-0011) | Development, integration tests, and production. |
 | Lightweight tests | SQLite | Portable unit-level tests only. Never production. |
 | Backend tests | pytest | Unit, integration, API, security, concurrency. |
 | Frontend tests | Vitest + Vue Test Utils | Component and composable tests. |

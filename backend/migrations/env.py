@@ -9,6 +9,7 @@ from __future__ import annotations
 
 from alembic import context
 from sqlalchemy import engine_from_config, pool
+from sqlalchemy.engine import make_url
 
 from app.core.config import get_settings
 from app.infrastructure.database import Base
@@ -22,12 +23,18 @@ def _database_url() -> str:
     return configured if configured else get_settings().database_url
 
 
+def _is_sqlite(url: str) -> bool:
+    return make_url(url).get_backend_name() == "sqlite"
+
+
 def run_migrations_offline() -> None:
     context.configure(
         url=_database_url(),
         target_metadata=Base.metadata,
         literal_binds=True,
         dialect_opts={"paramstyle": "named"},
+        # SQLite cannot ALTER most columns in place; batch mode recreates the table instead.
+        render_as_batch=_is_sqlite(_database_url()),
     )
 
     with context.begin_transaction():
@@ -40,7 +47,11 @@ def run_migrations_online() -> None:
     connectable = engine_from_config(section, prefix="sqlalchemy.", poolclass=pool.NullPool)
 
     with connectable.connect() as connection:
-        context.configure(connection=connection, target_metadata=Base.metadata)
+        context.configure(
+            connection=connection,
+            target_metadata=Base.metadata,
+            render_as_batch=connection.dialect.name == "sqlite",
+        )
         with context.begin_transaction():
             context.run_migrations()
 

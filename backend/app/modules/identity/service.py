@@ -90,6 +90,14 @@ class CustomerRegistration:
 
 
 @dataclass(frozen=True, slots=True)
+class AdminBootstrap:
+    """The result of the first-administrator bootstrap command."""
+
+    user: User
+    roles: tuple[str, ...]
+
+
+@dataclass(frozen=True, slots=True)
 class Login:
     """The result of a successful login."""
 
@@ -215,10 +223,20 @@ def revoke_session(
 
 
 def _is_duplicate_email(error: IntegrityError) -> bool:
-    """Tell an email collision apart from other integrity failures."""
+    """Tell an email collision apart from other integrity failures.
+
+    psycopg exposes the violated constraint name on ``orig.diag``. SQLite only reports the
+    table and column in the exception message, so the message is used as a fallback rather than
+    turning a duplicate registration into a 500 on SQLite.
+    """
 
     diag = getattr(error.orig, "diag", None)
-    return getattr(diag, "constraint_name", None) == "uq_users_email"
+    constraint_name = getattr(diag, "constraint_name", None)
+    if constraint_name is not None:
+        return constraint_name == "uq_users_email"
+
+    message = str(error.orig).lower()
+    return "users.email" in message and ("unique" in message or "duplicate" in message)
 
 
 def register_customer(
@@ -283,6 +301,56 @@ def register_customer(
         raw_session_token=raw_token,
         roles=roles,
     )
+
+
+def create_admin(
+    session: Session,
+    *,
+    full_name: str,
+    email: str,
+    password: str,
+    password_hasher: Callable[[str], str] = hash_password,
+) -> AdminBootstrap:
+    """Create an active administrator with the ``admin`` and ``customer`` roles.
+
+    This is the only path that creates an administrator without an existing administrator, and it
+    is reachable only from the administrative CLI, never from HTTP. Validation reuses the same
+    domain rules as registration, and the user plus both role rows are written in one commit, so
+    an interrupted run cannot leave a half-created account behind.
+    """
+
+    cleaned_name = normalize_full_name(full_name)
+    normalized_email = normalize_email(email)
+    validate_password(password)
+
+    if repository.get_user_by_email(session, normalized_email) is not None:
+        logger.info("admin_bootstrap_rejected reason=duplicate_email")
+        raise EmailAlreadyRegisteredError
+
+    try:
+        user = repository.create_user(
+            session,
+            full_name=cleaned_name,
+            email=normalized_email,
+            password_hash=password_hasher(password),
+            status=UserStatus.ACTIVE.value,
+        )
+        repository.add_role(session, user_id=user.id, role=Role.ADMIN)
+        repository.add_role(session, user_id=user.id, role=Role.CUSTOMER)
+        roles = tuple(repository.list_roles(session, user.id))
+        session.commit()
+    except IntegrityError as error:
+        session.rollback()
+        if _is_duplicate_email(error):
+            logger.info("admin_bootstrap_rejected reason=duplicate_email")
+            raise EmailAlreadyRegisteredError from error
+        raise
+    except Exception:
+        session.rollback()
+        raise
+
+    logger.info("admin_bootstrapped user_id=%s", user.id)
+    return AdminBootstrap(user=user, roles=roles)
 
 
 def login(

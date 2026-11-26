@@ -1,6 +1,7 @@
 # ADR-0002: PostgreSQL as the Main Database, SQLite Only for Lightweight Tests
 
-- **Status:** Accepted
+- **Status:** Accepted; superseded in part by [ADR-0011](0011-sqlite-support.md)
+  (SQLite is now a supported local database; PostgreSQL remains the production database)
 - **Date:** 2026-11-18
 - **Decision owners:** BeautyBook project owner and engineering agent
 

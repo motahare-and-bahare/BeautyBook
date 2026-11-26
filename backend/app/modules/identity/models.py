@@ -16,7 +16,6 @@ from datetime import datetime
 from sqlalchemy import (
     CHAR,
     CheckConstraint,
-    DateTime,
     ForeignKey,
     Index,
     String,
@@ -27,7 +26,7 @@ from sqlalchemy import (
 )
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from app.infrastructure.database import Base
+from app.infrastructure.database import Base, UTCDateTime
 from app.modules.identity.domain import (
     APPLICATION_STATUS_VALUES,
     ROLE_VALUES,
@@ -64,12 +63,12 @@ class User(Base):
         server_default=UserStatus.ACTIVE.value,
     )
     created_at: Mapped[datetime] = mapped_column(
-        DateTime(timezone=True),
+        UTCDateTime(),
         nullable=False,
         server_default=func.now(),
     )
     updated_at: Mapped[datetime] = mapped_column(
-        DateTime(timezone=True),
+        UTCDateTime(),
         nullable=False,
         server_default=func.now(),
         onupdate=func.now(),
@@ -128,13 +127,13 @@ class AuthSession(Base):
     )
     token_hash: Mapped[str] = mapped_column(CHAR(64), nullable=False)
     expires_at: Mapped[datetime] = mapped_column(
-        DateTime(timezone=True),
+        UTCDateTime(),
         nullable=False,
         index=True,
     )
-    revoked_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    revoked_at: Mapped[datetime | None] = mapped_column(UTCDateTime(), nullable=True)
     created_at: Mapped[datetime] = mapped_column(
-        DateTime(timezone=True),
+        UTCDateTime(),
         nullable=False,
         server_default=func.now(),
     )
@@ -192,18 +191,18 @@ class OwnerApplication(Base):
         nullable=True,
     )
     submitted_at: Mapped[datetime] = mapped_column(
-        DateTime(timezone=True),
+        UTCDateTime(),
         nullable=False,
         server_default=func.now(),
     )
-    reviewed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    reviewed_at: Mapped[datetime | None] = mapped_column(UTCDateTime(), nullable=True)
     created_at: Mapped[datetime] = mapped_column(
-        DateTime(timezone=True),
+        UTCDateTime(),
         nullable=False,
         server_default=func.now(),
     )
     updated_at: Mapped[datetime] = mapped_column(
-        DateTime(timezone=True),
+        UTCDateTime(),
         nullable=False,
         server_default=func.now(),
         onupdate=func.now(),

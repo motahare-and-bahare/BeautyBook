@@ -40,4 +40,10 @@ docs/features/F-009-booking/
 
 | Task | Folder | Status |
 |---|---|---|
-| F-001 Authentication and registration gate | [`F-001-authentication/`](./F-001-authentication/) | Ready (approved 2026-11-18) |
+| F-001 Authentication and registration gate | [`F-001-authentication/`](./F-001-authentication/) | In Progress |
+| F-019 Persian localization and RTL layout | [`F-019-persian-rtl-auth/`](./F-019-persian-rtl-auth/) | Done |
+| F-020 SQLite as the default database | [`F-020-sqlite-default-database/`](./F-020-sqlite-default-database/) | Done |
+| F-021 Persian combined auth entry | [`F-021-persian-auth-entry/`](./F-021-persian-auth-entry/) | Done |
+| F-022 Admin panel shell | [`F-022-admin-shell/`](./F-022-admin-shell/) | Done |
+| F-023 Vazirmatn font | [`F-023-vazir-font/`](./F-023-vazir-font/) | Done |
+| F-024 Categories and the admin boundary | [`F-024-categories-admin/`](./F-024-categories-admin/) | Done |

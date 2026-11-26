@@ -9,15 +9,16 @@ import pytest
 from alembic import command
 from alembic.config import Config
 from fastapi.testclient import TestClient
-from sqlalchemy import Engine, create_engine, text
+from sqlalchemy import Engine, text
 from sqlalchemy.orm import Session, sessionmaker
 
 from app.core.config import get_settings
-from app.infrastructure.database import get_session
+from app.infrastructure.database import create_database_engine, get_session
 from app.main import create_app
 
 BACKEND_ROOT = Path(__file__).resolve().parents[1]
-_TABLES = "owner_applications, sessions, user_roles, users"
+# Child tables first, so the same cleanup works on SQLite, which has no TRUNCATE.
+_CLEANUP_ORDER = ("owner_applications", "sessions", "user_roles", "users")
 
 
 def _alembic_config(database_url: str) -> Config:
@@ -80,7 +81,7 @@ def test_engine() -> Iterator[Engine]:
     command.downgrade(config, "base")
     command.upgrade(config, "head")
 
-    engine = create_engine(test_url, pool_pre_ping=True)
+    engine = create_database_engine(test_url)
     try:
         yield engine
     finally:
@@ -91,7 +92,8 @@ def test_engine() -> Iterator[Engine]:
 @pytest.fixture()
 def clean_database(test_engine: Engine) -> None:
     with test_engine.begin() as connection:
-        connection.execute(text(f"TRUNCATE TABLE {_TABLES} CASCADE"))
+        for table in _CLEANUP_ORDER:
+            connection.execute(text(f"DELETE FROM {table}"))
 
 
 @pytest.fixture()

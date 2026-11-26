@@ -351,6 +351,37 @@ python -m venv .venv
 .\.venv\Scripts\python.exe -m mypy
 ```
 
+### First administrator (bootstrap)
+
+The administrator role is never available through public registration. The first administrator is
+created once, by an operator, with the administrative CLI:
+
+```powershell
+cd backend
+.\.venv\Scripts\python.exe -m app.cli create-admin --email admin@beautybook.com --full-name "Site Administrator"
+```
+
+On macOS or Linux use `.venv/bin/python` instead. The command prompts for the password; when
+standard input is not a terminal it reads the first line instead:
+
+```bash
+cd backend
+printf '%s\n' 'a-long-password-of-at-least-12-characters' \
+  | .venv/bin/python -m app.cli create-admin --email admin@beautybook.com
+```
+
+What the command does:
+
+- Applies `alembic upgrade head` first if the tables do not exist yet.
+- Creates one **active** account holding the `admin` **and** `customer` roles in a single commit.
+- Hashes the password with Argon2id; the plain password is never stored, logged, or accepted as a
+  command-line argument.
+- Enforces the same password policy as registration (12-128 characters).
+- Refuses an email that is already registered and changes nothing, so running it twice is safe.
+
+Sign in at `http://127.0.0.1:5173/login` with that email and password. `GET /api/v1/auth/me` then
+returns roles `["admin", "customer"]`, which is what the administrator screens check.
+
 ### Frontend
 
 ```powershell
@@ -386,9 +417,9 @@ npm run dev
 Open `http://127.0.0.1:5173/login` or `http://127.0.0.1:5173/register`. The Vite development server
 proxies `/api` to `http://127.0.0.1:8000`, so both pages use the real backend and PostgreSQL.
 
-Customer registration, login, and `/auth/me` are implemented. Logout, the account dashboard, the
-owner application journey, the administrator review queue, and the administrator bootstrap command
-are the remaining F-001 steps.
+Customer registration, login, `/auth/me`, and the administrator bootstrap command are implemented.
+Logout, the account dashboard, the owner application journey, the administrator review queue, and
+the administrator user list (`GET /admin/users`, F-014) are the remaining steps.
 
 ---
 

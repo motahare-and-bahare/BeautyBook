@@ -211,6 +211,7 @@ verified, frontend builds and mounts, the test commands run, and `python -m app.
 | Files | `app/cli.py`, `app/modules/identity/service.py`, `app/modules/identity/repository.py` |
 | Green | `create-admin` command; interactive/stdin password; Argon2id hashing; atomic user + roles insert. |
 | Refactor | Reuse the same user-creation service path as registration; keep the CLI thin. |
+| Status | Implemented 2026-11-25: `app/cli.py`, `identity.service.create_admin`, `tests/unit/test_cli_create_admin_command.py`, `tests/integration/test_cli_create_admin.py`. |
 
 ### Step 11 - Administrator role grant
 

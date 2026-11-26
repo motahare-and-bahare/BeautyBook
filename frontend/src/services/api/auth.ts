@@ -28,4 +28,9 @@ export const authApi = {
   login(payload: LoginPayload): Promise<AuthUser> {
     return api.post<AuthUser>('/auth/login', payload)
   },
+
+  /** The signed-in user, resolved from the HttpOnly session cookie by the server. */
+  me(): Promise<AuthUser> {
+    return api.get<AuthUser>('/auth/me')
+  },
 }

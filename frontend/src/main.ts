@@ -3,6 +3,7 @@ import { createApp } from 'vue'
 
 import App from '@/app/App.vue'
 import router from '@/router'
+import '@/assets/styles/fonts.css'
 import '@/assets/styles/tokens.css'
 import '@/assets/styles/global.css'
 

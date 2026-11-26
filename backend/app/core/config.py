@@ -15,6 +15,7 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 AppEnv = Literal["development", "test", "production"]
 
 POSTGRESQL_PREFIX = "postgresql+psycopg://"
+SQLITE_PREFIXES = ("sqlite+pysqlite://", "sqlite://")
 
 
 class Settings(BaseSettings):
@@ -49,14 +50,22 @@ class Settings(BaseSettings):
 
     @field_validator("database_url", "test_database_url")
     @classmethod
-    def require_psycopg_driver(cls, value: str | None) -> str | None:
+    def require_supported_database_url(cls, value: str | None) -> str | None:
+        """Accept the production PostgreSQL driver and the local SQLite driver only.
+
+        PostgreSQL remains the production database. SQLite is accepted for a local,
+        single-operator deployment and for tests (ADR-0011); it cannot provide the booking
+        concurrency guarantees that PostgreSQL provides.
+        """
+
         if value is None:
             return None
-        if not value.startswith(POSTGRESQL_PREFIX):
-            raise ValueError(
-                f"must be a PostgreSQL URL using the psycopg driver ({POSTGRESQL_PREFIX}...)"
-            )
-        return value
+        if value.startswith(POSTGRESQL_PREFIX) or value.startswith(SQLITE_PREFIXES):
+            return value
+        raise ValueError(
+            "must be a PostgreSQL URL using the psycopg driver "
+            f"({POSTGRESQL_PREFIX}...) or a SQLite URL (sqlite+pysqlite:///...)"
+        )
 
     @property
     def secure_cookies(self) -> bool:

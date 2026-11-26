@@ -15,10 +15,10 @@ describe('application shell', () => {
     expect(wrapper.get('h1').text()).toBe('ورود به بیوتی‌بوک')
   })
 
-  it('redirects the root route to login', async () => {
+  it('redirects the root route to the combined auth entry (F-021)', async () => {
     await router.push('/')
     await router.isReady()
 
-    expect(router.currentRoute.value.name).toBe('login')
+    expect(router.currentRoute.value.name).toBe('auth')
   })
 })

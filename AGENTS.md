@@ -424,10 +424,12 @@ verified with concurrent PostgreSQL integration tests before F-009 is marked Don
 
 ## 12. Database and migrations
 
-- PostgreSQL is the default application database for development, integration tests, and
-  production.
-- SQLite may be used only for fast, lightweight unit-level tests where the behavior is portable.
-- SQLite must never be used in production.
+- PostgreSQL is the default application database for development, integration tests,
+  concurrency tests, and production.
+- SQLite is also accepted for a local, single-operator setup (ADR-0011). The engine enables
+  foreign keys and reads timestamps back as UTC, but SQLite cannot provide the booking exclusion
+  constraint or multi-writer concurrency; those tests still run on PostgreSQL.
+- SQLite must not be presented as production-equivalent for booking correctness.
 - Use SQLAlchemy 2.x and Alembic.
 - Every schema change needs a migration. Do not modify a released migration; add a new one.
 - Keep migrations deterministic and review generated SQL manually.

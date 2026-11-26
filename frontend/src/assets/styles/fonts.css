@@ -1,0 +1,25 @@
+/**
+ * Self-hosted Persian UI font (F-023).
+ *
+ * "وزیر" is released today as **Vazirmatn**, the maintained continuation of the original Vazir
+ * design. One variable file covers weights 100-900, so the UI's 400/600/700/800 rules use the real
+ * face instead of a synthetic bold.
+ *
+ * Source: https://github.com/rastikerdar/vazirmatn (v33.0.3, SIL Open Font License 1.1).
+ * The license text ships next to the font as `Vazirmatn-OFL.txt` and must stay there on updates.
+ *
+ * `swap` is mandatory: if the file is missing or blocked, the Persian-capable fallback stack in
+ * `tokens.css` renders the text instead of leaving it invisible.
+ */
+
+@font-face {
+  font-family: "Vazirmatn";
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: swap;
+  src: url("../fonts/Vazirmatn-Variable.woff2") format("woff2");
+  unicode-range:
+    U+0000-00FF, U+200C-200D, U+0600-06FF, U+0750-077F, U+0870-088E, U+08A0-08FF, U+FB50-FDFF,
+    U+FE70-FEFF, U+1EE00-1EEFF, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215,
+    U+FEFF, U+FFFD;
+}

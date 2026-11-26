@@ -26,6 +26,7 @@ const formError = ref('')
 const submitting = ref(false)
 
 const firstName = computed(() => user.value?.full_name.trim().split(/\s+/)[0] ?? '')
+const isAdmin = computed(() => user.value?.roles.includes('admin') ?? false)
 
 function clearErrors(): void {
   errors.email = ''
@@ -140,7 +141,10 @@ async function submit(): Promise<void> {
         </div>
       </dl>
 
-      <p class="success-note">داشبورد حساب در مرحلهٔ بعدی فرانت‌اند اضافه می‌شود.</p>
+      <p v-if="isAdmin" class="success-note">
+        <RouterLink class="admin-link" to="/admin/users">ورود به پنل مدیریت کاربران</RouterLink>
+      </p>
+      <p v-else class="success-note">داشبورد حساب در مرحلهٔ بعدی فرانت‌اند اضافه می‌شود.</p>
     </section>
 
     <template v-else>
@@ -321,6 +325,16 @@ async function submit(): Promise<void> {
 
 .success-note {
   margin: 0 !important;
+}
+
+.admin-link {
+  display: inline-block;
+  padding: 0.65rem var(--space-4);
+  color: #fff;
+  background: var(--color-primary);
+  border-radius: var(--radius-md);
+  font-weight: 700;
+  text-decoration: none;
 }
 
 @keyframes spin {

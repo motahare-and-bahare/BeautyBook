@@ -19,7 +19,7 @@ rather than rewriting history.
 | ADR | Title | Status |
 |---|---|---|
 | [0001](0001-modular-monolith.md) | Start with a modular monolith | Accepted |
-| [0002](0002-database-strategy.md) | PostgreSQL main, SQLite only for lightweight tests | Accepted |
+| [0002](0002-database-strategy.md) | PostgreSQL main, SQLite only for lightweight tests | Superseded in part by 0011 |
 | [0003](0003-booking-concurrency.md) | Booking overlap prevention strategy | Proposed |
 | [0004](0004-timezone-model.md) | UTC instants and IANA timezones | Accepted |
 | [0005](0005-authentication-session-strategy.md) | Browser authentication and session strategy | Accepted |
@@ -28,6 +28,7 @@ rather than rewriting history.
 | [0008](0008-money-representation.md) | Money representation and currency scope | Accepted |
 | [0009](0009-authorization-model.md) | Role and ownership authorization model | Accepted |
 | [0010](0010-role-assignment.md) | Registration flows, role assignment, and administrator provisioning | Accepted |
+| [0011](0011-sqlite-support.md) | SQLite as a supported local database | Accepted |
 
 ## When an ADR is required
 
